@@ -1,117 +1,176 @@
-# Kube Flask React 🚀
+# Kube Flask React ☸️🐳
 
-A beginner-friendly **full-stack microservices project** built using **React (frontend)** and **Flask (backend)**, designed to be deployed on **Kubernetes (Kind)**.
+A beginner-to-intermediate **cloud-native project** demonstrating how to build, containerize, and deploy a **React frontend + Flask backend** application on **Kubernetes (Kind)** using **Docker Hub images**.
 
-This project is created to **learn Kubernetes from scratch using a real application**, not just YAML files.
+This project is designed to learn Kubernetes through a **real working application**, not just YAML files.
 
 ---
 
-## 🧩 Project Architecture
+## 🧠 Project Overview
 
+- **Frontend:** React (served via Nginx)
+- **Backend:** Python Flask (REST API)
+- **Containerization:** Docker
+- **Image Registry:** Docker Hub
+- **Orchestration:** Kubernetes (Kind)
+
+The frontend and backend are deployed as **separate microservices** and communicate using **Kubernetes Service DNS**.
+
+---
+
+## 🏗️ Architecture
 ```
 Browser
-   ↓
-React Frontend (Port 3000)
-   ↓ HTTP API
-Flask Backend (Port 5000)
+  |
+  | (NodePort / Port Forward)
+  v
+React Frontend (Kubernetes Pod)
+  |
+  | http://flask-backend:5000
+  v
+Flask Backend (Kubernetes Pod)
 ```
 
-- Frontend and backend are **independent services**
-- Communication happens via **REST API (JSON)**
-- Designed using **microservice principles**
+### Kubernetes Components Used
+
+- Deployment
+- Service (ClusterIP, NodePort)
+- Pods
+- Docker Hub images
+- kubectl port-forward (for local access)
 
 ---
 
-## 🛠 Tech Stack
+## 🗂️ Project Structure
+```
+kube-flask-react/
+├── backend/
+│   ├── app.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
+│   ├── src/
+│   ├── Dockerfile
+│   └── .env
+├── k8s/
+│   ├── backend/
+│   │   ├── backend-deployment.yaml
+│   │   └── backend-service.yaml
+│   └── frontend/
+│       ├── frontend-deployment.yaml
+│       └── frontend-service.yaml
+└── README.md
+```
 
-### Frontend
-- React
-- JavaScript
-- HTML / CSS
+---
+
+## 🐳 Docker Images
+
+Images are built locally and pushed to Docker Hub:
+
+- **Backend:** `pravinsakharkar/flask-backend:v1`
+- **Frontend:** `pravinsakharkar/react-frontend:v1`
+
+---
+
+## ▶️ Run Locally (Without Kubernetes)
 
 ### Backend
-- Python
-- Flask
-- Flask-CORS
-
-### DevOps (Next Phases)
-- Docker
-- Kubernetes (Kind)
-- kubectl
-
----
-
-## ✨ Features
-
-- Simple and clean UI
-- React frontend calling Flask backend
-- REST API communication
-- CORS enabled for cross-origin calls
-- Kubernetes-ready architecture
-
----
-
-## ▶️ How to Run Locally
-
-### 1️⃣ Run Backend (Flask)
-
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate   # Windows
-# source venv/bin/activate   # Linux/Mac
+source venv/bin/activate
 pip install -r requirements.txt
 python app.py
 ```
 
-Backend runs on:
-```
-http://localhost:5000
-```
-
-### 2️⃣ Run Frontend (React)
-
+### Frontend
 ```bash
 cd frontend
 npm install
 npm start
 ```
 
-Frontend runs on:
+---
+
+## ☸️ Run on Kubernetes (Kind)
+
+### 1️⃣ Create / Verify Kind Cluster
+```bash
+kind create cluster   # if not already created
+kubectl get nodes
 ```
-http://localhost:3000
+
+### 2️⃣ Deploy Backend
+```bash
+kubectl apply -f k8s/backend/
 ```
 
----
+Test backend:
+```bash
+kubectl port-forward svc/flask-backend 5000:5000
+```
 
-## 🎯 Learning Goals
+### 3️⃣ Deploy Frontend
+```bash
+kubectl apply -f k8s/frontend/
+```
 
-This project helps you learn:
+Access frontend:
+```bash
+kubectl port-forward svc/react-frontend 3000:80
+```
 
-- Microservice architecture
-- Frontend–backend communication
-- REST APIs
-- CORS and browser security
-- Preparing applications for Docker & Kubernetes
-
----
-
-## 🚀 Future Enhancements
-
-- [ ] Dockerize frontend and backend
-- [ ] Deploy application on Kubernetes using Kind
-- [ ] Add Kubernetes Services and Deployments
-- [ ] Scale pods and test self-healing
-- [ ] Add ConfigMaps and Secrets
+Open: `http://localhost:3000`
 
 ---
 
-## 👨‍💻 Author
+## 🔑 Environment Configuration
 
-Built as part of a Kubernetes hands-on learning journey.
+Frontend uses environment variables:
+```env
+REACT_APP_API_URL=http://flask-backend:5000
+```
+
+This allows the frontend to communicate with the backend via Kubernetes service DNS.
 
 ---
 
-## 📝 License
+## 🎯 Key Learnings
 
-MIT License - Feel free to use this project for learning purposes.
+- Microservices architecture
+- Dockerizing frontend and backend apps
+- Pushing images to Docker Hub
+- Kubernetes Deployments and Services
+- Internal service-to-service communication
+- Debugging Kubernetes networking (Kind + NodePort)
+- Using port-forward for local Kubernetes access
+
+---
+
+## 🚀 Future Improvements
+
+- Add Ingress (NGINX) instead of port-forward
+- Add ConfigMaps and Secrets
+- Add liveness & readiness probes
+- Enable Horizontal Pod Autoscaling (HPA)
+- CI/CD with GitHub Actions
+
+---
+
+## 👤 Author
+
+**Pravin Sakharkar**
+
+Learning Kubernetes, Docker, and Cloud-native development through hands-on projects.
+
+---
+
+## ✅ Commit the README Update
+
+From repo root:
+```bash
+git add README.md
+git commit -m "Update README with Docker and Kubernetes deployment details"
+git push
+```
